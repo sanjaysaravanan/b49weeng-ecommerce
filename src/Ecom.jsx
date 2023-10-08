@@ -20,7 +20,8 @@ function Product({ product }) {
 }
 
 Product.propTypes = {
-  product: PropTypes.shape({
+  images: PropTypes.arrayOf(PropTypes.string),
+  product: PropTypes.shape({ // prop type for JS Object
     thumbnail: PropTypes.string,
     title: PropTypes.string,
     price: PropTypes.number,

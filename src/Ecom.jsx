@@ -2,8 +2,19 @@ import PropTypes from "prop-types";
 
 import productsData from "./data.json";
 import { Link, useSearchParams } from "react-router-dom";
+import { useContext, useState } from "react";
+import CartContext from "./CartContext";
 
 function Product({ product }) {
+  const { cart, addProduct } = useContext(CartContext);
+
+  const checkCart = () => {
+    return cart.find((cartProd) => product.id === cartProd.id);
+  };
+
+  const getQty = () =>
+    cart.filter((cartProd) => product.id === cartProd.id).length;
+
   return (
     <div className="product">
       <Link to={`/${product.id}`}>
@@ -12,7 +23,11 @@ function Product({ product }) {
       </Link>
       <p>${product.price.toFixed(2)}</p>
       <div className="rating">Rating: {product.rating}</div>
-      <button>Add To Cart</button>
+      {!checkCart() && (
+        <button onClick={() => addProduct(product)}>Add To Cart</button>
+      )}
+      <h3>Qty:({getQty()})</h3>
+      {checkCart() && <button onClick={() => addProduct(product)}>+</button>}
     </div>
   );
 }
@@ -92,6 +107,8 @@ Category.propTypes = {
 const Ecom = () => {
   let [searchParams, setSearchParams] = useSearchParams();
 
+  const { cart } = useContext(CartContext);
+
   return (
     <div className="App">
       {console.log(searchParams.get("category"))}
@@ -101,7 +118,7 @@ const Ecom = () => {
           float: "right",
         }}
       >
-        <Link to={"/cart"}>Cart ( 0 )</Link>
+        <Link to={"/cart"}>Cart ( {cart.length} )</Link>
       </div>
       <div
         style={{
@@ -121,4 +138,18 @@ const Ecom = () => {
   );
 };
 
-export default Ecom;
+const RootEcom = () => {
+  const [cart, setCart] = useState([]);
+
+  const addProduct = (productDetails) => {
+    setCart([...cart, productDetails]);
+  };
+
+  return (
+    <CartContext.Provider value={{ cart, addProduct }}>
+      <Ecom />
+    </CartContext.Provider>
+  );
+};
+
+export default RootEcom;
